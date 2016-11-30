@@ -20,15 +20,16 @@ int main(int argc, char **argv)
 
 	if (n_private.getParam("device", device))
 	{
-		ROS_INFO("Device set to: %s", device.c_str());
+		ROS_INFO("Device set to: /dev/%s", device.c_str());
 	}
 	else
 	{
-		device = "/dev/ttyUSB0";  
+		device = "ttyUSB0";  
 		ROS_INFO("Using the default USB device: /dev/ttyUSB0");
 	}
 
 	char sPortName[LT_MAX_PORT_NAME_LEN];
+	//char* sPortName;
 	strcpy(sPortName, device.c_str());
 	unsigned int uBaudRate = 115200;
 	unsigned int uParity = LT_PARITY_NONE;
