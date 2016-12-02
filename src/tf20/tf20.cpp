@@ -241,45 +241,50 @@ void TF20::read_data()
 		{
 			write_data(read_buf[i]);
 		}
-	}
 
-	for(int i = 0 ; i < MAXSIZE ; i++)
-	{
-		if((ring_buf[read_addr] == 0x44) && (ring_buf[next_data_handle(read_addr)] == 0x45) 
-			&& (ring_buf[next_data_handle(read_addr,2)] == 0x32) && (ring_buf[next_data_handle(read_addr,3)] == 0x30))  
+		for(int i = 0 ; i < MAXSIZE ; i++)
 		{
-			for(int j = 0 ; j < 24 ; j++)
+			if((ring_buf[read_addr] == 0x44) && (ring_buf[next_data_handle(read_addr)] == 0x45) 
+				&& (ring_buf[next_data_handle(read_addr,2)] == 0x32) && (ring_buf[next_data_handle(read_addr,3)] == 0x30))  
 			{
-				data_buf[j] = ring_buf[read_addr] ;
+				for(int j = 0 ; j < 24 ; j++)
+				{
+					data_buf[j] = ring_buf[read_addr] ;
+					read_addr = next_data_handle(read_addr) ;
+				}
+				read_valid = true;
+				break;
+			}else
+			{
 				read_addr = next_data_handle(read_addr) ;
 			}
-			read_valid = true;
-			break;
+		}
+
+		if(read_valid)
+		{
+			distance = ((long)data_buf[11]<<24 | (long)data_buf[10]<<16 | (long)data_buf[9]<<8 | (long)data_buf[8]) ;
+			amplitude = ((long)data_buf[15]<<24 | (long)data_buf[14]<<16 | (long)data_buf[13]<<8 | (long)data_buf[12]) ;
+		}
+
+		crc_data = crc32gen((unsigned int*)data_buf, 5);
+		crc_recieved = ((unsigned int)data_buf[23]<<24) | ((unsigned int)data_buf[22]<<16) | ((unsigned int)data_buf[21]<<8) | ((unsigned int)data_buf[20]) ;
+
+		if(crc_data == crc_recieved)
+		{
+			crc_valid = true;
 		}else
 		{
-			read_addr = next_data_handle(read_addr) ;
+			crc_valid = false;
 		}
-	}
 
-	if(read_valid)
-	{
-		distance = ((long)data_buf[11]<<24 | (long)data_buf[10]<<16 | (long)data_buf[9]<<8 | (long)data_buf[8]) ;
-		amplitude = ((long)data_buf[15]<<24 | (long)data_buf[14]<<16 | (long)data_buf[13]<<8 | (long)data_buf[12]) ;
-	}
+		if(read_valid && crc_valid)
+		//if(read_valid)
+		{
+			data_valid = true;
+			read_valid = false;
 
-	crc_data = crc32gen((unsigned int*)data_buf, 5);
-	crc_recieved = ((unsigned int)data_buf[23]<<24) | ((unsigned int)data_buf[22]<<16) | ((unsigned int)data_buf[21]<<8) | ((unsigned int)data_buf[20]) ;
-
-	if(crc_data == crc_recieved)
-	{
-		crc_valid = true;
-	}
-
-	if(read_valid && crc_valid)
-	//if(read_valid)
-	{
-		data_valid = true;
-	}
+		}
+	}		
 }
 
 unsigned int TF20::crc32gen(unsigned int data[], unsigned int size)

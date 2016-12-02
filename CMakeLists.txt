@@ -43,12 +43,22 @@ add_library(tf20_lib
   src/tf20/tf20.cpp
 )
 
+add_library(tf01_lib
+  src/tf01/tf01.cpp
+)
+
 
 ## Declare a C++ executable
 add_executable(tf20_node src/tf20/tf20_node.cpp)
 target_link_libraries(tf20_node
   ${catkin_LIBRARIES}
   tf20_lib
+)
+
+add_executable(tf01_node src/tf01/tf01_node.cpp)
+target_link_libraries(tf01_node
+  ${catkin_LIBRARIES}
+  tf01_lib
 )
 
 SET(CMAKE_C_FLAGS  "-DLT_LINUX -std=c99 -fmax-errors=1")
