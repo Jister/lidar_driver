@@ -1,0 +1,7 @@
+<launch>
+  <node pkg="lidar_driver" name="tf01_node" type="tf01_node" output="screen">
+    <param name="device" type="string" value="/dev/Lidar"/>
+  </node> 
+  
+</launch>
+
